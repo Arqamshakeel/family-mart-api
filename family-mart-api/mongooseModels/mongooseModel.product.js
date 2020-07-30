@@ -11,7 +11,7 @@ var productSchema = mongoose.Schema({
   weight: String,
   description: String,
   onSale: Boolean,
-  category: String,
+  category: [String],
 });
 var Product = mongoose.model("products", productSchema);
 

@@ -8,7 +8,9 @@ var _ = require("lodash");
 var jwt = require("jsonwebtoken");
 var validateUserRegMW = require("../middlewares/authUserReg");
 router.get("/", async (req, res, next) => {
-  res.send("GET user");
+  let user = await User.find();
+
+  res.send(user[0]._id);
 });
 
 router.post("/register", validateUserRegMW, async (req, res) => {
