@@ -18,7 +18,13 @@ router.get("/", async (req, res, next) => {
   //fs.writeFile("test.jpg", product[0].image.data, "uploads", function (err) {});
   //return res.send(img);
 
-  var buf = Buffer.from(product[0].image.data, "base64");
+  var buf2 = Buffer.from(product[0].image.data, "base64");
+
+  var buf = buf2;
+
+  res.send(
+    "<img src=data:image/jpeg;base64," + `${buf.toString("base64")}></img>`
+  );
 
   fs.writeFile("hello.jpg", buf, function (error) {
     if (error) {
