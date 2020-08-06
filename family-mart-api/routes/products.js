@@ -22,19 +22,19 @@ router.get("/", async (req, res, next) => {
 
   var buf = buf2;
 
-  res.send(
-    "<img src=data:image/jpeg;base64," + `${buf.toString("base64")}></img>`
-  );
+  var imageSrc = "data:image/jpeg;base64," + `${buf.toString("base64")}`;
 
-  fs.writeFile("hello.jpg", buf, function (error) {
-    if (error) {
-      throw error;
-    } else {
-      console.log("File created from base64 string!");
-      return true;
-    }
-  });
-  return res.send("created");
+  return res.send(imageSrc);
+
+  // fs.writeFile("hello.jpg", buf, function (error) {
+  //   if (error) {
+  //     throw error;
+  //   } else {
+  //     console.log("File created from base64 string!");
+  //     return true;
+  //   }
+  // });
+  //return res.send("created");
 });
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
