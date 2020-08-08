@@ -5,7 +5,7 @@ var productSchema = mongoose.Schema({
   name: String,
   type: String,
   stock: Number,
-  image: { data: Buffer, contentType: String },
+  image: { data: String, contentType: String },
   price: Number,
   company: String,
   weight: String,

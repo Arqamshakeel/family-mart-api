@@ -13,18 +13,25 @@ var jwt = require("jsonwebtoken");
 var validateUserRegMW = require("../middlewares/authUserReg");
 router.get("/", async (req, res, next) => {
   let product = await Product.find();
-  //let img = product.image.data;
-  //let img = fs.readFileSync(product[0].image.data);
-  //fs.writeFile("test.jpg", product[0].image.data, "uploads", function (err) {});
-  //return res.send(img);
 
-  var buf2 = Buffer.from(product[0].image.data, "base64");
+  //var buf2 = Buffer.from(product[0].image.data, "base64");
 
-  var buf = buf2;
+  //var buf = buf2;
 
-  var imageSrc = "data:image/jpeg;base64," + `${buf.toString("base64")}`;
+  //var imageSrc = "data:image/jpeg;base64," + `${buf.toString("base64")}`;
+  //console.log(product[0].image.data.length);
+  // var imageSrc = "data:image/jpeg;base64," + `${product[0].image.data}`;
 
-  return res.send(imageSrc);
+  // for (let i = 0; i < product.length; i++) {
+  //   product[i].image.data =
+  //     "data:image/jpeg;base64," + `${product[0].image.data}`;
+  //   product[i].image.data = ab2str(product[i].image.data);
+  //   function ab2str(buf) {
+  //     return String.fromCharCode.apply(null, new Uint16Array(buf));
+  //   }
+  // }
+
+  return res.send(product);
 
   // fs.writeFile("hello.jpg", buf, function (error) {
   //   if (error) {
@@ -56,8 +63,9 @@ router.post("/", upload, async (req, res, next) => {
   product.weight = "30g";
   product.category = ["chips", "snacks", "potato"];
   console.log(__dirname);
-  product.image.data = fs.readFileSync("file.jpg");
-  product.image.contentType = "picture";
+  //product.image.data = fs.readFileSync("file.jpg");
+  product.image.data = req.body.img;
+  //product.image.contentType = "picture";
   await product.save();
   res.send(product);
 });
