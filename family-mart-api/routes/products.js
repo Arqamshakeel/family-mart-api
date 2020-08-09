@@ -30,6 +30,7 @@ router.get("/", async (req, res, next) => {
   //     return String.fromCharCode.apply(null, new Uint16Array(buf));
   //   }
   // }
+  //res.cookie("cookieNam", "cookieValue");
 
   return res.send(product);
 
@@ -56,12 +57,12 @@ var upload = multer({ storage: storage }).single("avatar");
 
 router.post("/", upload, async (req, res, next) => {
   let product = new Product();
-  product.name = "LAYS MASALA";
-  product.stock = 100;
-  product.company = "LAYS";
-  product.price = 30;
+  product.name = req.body.name;
+  product.stock = req.body.stock;
+  product.company = req.body.company;
+  product.price = req.body.price;
   product.weight = "30g";
-  product.category = ["chips", "snacks", "potato"];
+  product.category = req.body.tags;
   console.log(__dirname);
   //product.image.data = fs.readFileSync("file.jpg");
   product.image.data = req.body.img;
@@ -69,7 +70,35 @@ router.post("/", upload, async (req, res, next) => {
   await product.save();
   res.send(product);
 });
+router.get("/cart", async function (req, res, next) {
+  if (req.cookies.cart) {
+    return res.send(req.cookies.cart);
+  } else {
+    return res.send(null);
+  }
+});
+router.get("/cart/:qty/:id", async function (req, res, next) {
+  let id = req.params.id;
+  console.log("Cart in id:" + id);
+  let product = await Product.findById(id);
+  // if(product)
+  //add check for counter and stock
+  let cart = [];
+  if (req.cookies.cart) {
+    cart = req.cookies.cart;
+  }
+  cart.push({
+    id: product._id,
+    name: product.name,
+    company: product.company,
+    price: product.price,
+    qty: req.params.qty,
+  });
 
+  res.cookie("cart", cart, { httpOnly: false });
+
+  return res.send("Cookie created");
+});
 // router.post("/new", validateUserRegMW, async (req, res) => {
 //   return res.send("NEW");
 // });

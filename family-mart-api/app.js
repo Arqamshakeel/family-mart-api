@@ -12,7 +12,23 @@ var products = require("./routes/products");
 var bodyParser = require("body-parser");
 app.use(bodyParser.json({ limit: "900mb" }));
 var cors = require("cors");
-app.use(cors());
+const corsOptions = {
+  allowedHeaders: [
+    "Origin",
+    "X-Requested-With",
+    "Content-Type",
+    "Accept",
+    "X-Access-Token",
+    "Authorization",
+  ],
+  credentials: true,
+  methods: "GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE",
+  origin: "http://localhost:3000",
+  preflightContinue: false,
+};
+app.use(cors(corsOptions));
+//var session = require("express-session");
+//app.set("trust proxy", 1); // trust first proxy
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -35,15 +51,49 @@ app.use(function (req, res, next) {
   next(createError(404));
 });
 app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Origin", "http://localhost:3000/");
   res.header(
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept"
   );
-  res.header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE, PUT");
   next();
 });
+// app.use(function (req, res, next) {
+//   res.header("Access-Control-Allow-Credentials: false");
+//   // res.header(
+//   //   "Access-Control-Allow-Headers",
+//   //   "Origin, X-Requested-With, Content-Type, Accept"
+//   // );
+//   // res.header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE, PUT");
+//   next();
+// });
+
+// app.use(function (req, res, next) {
+//   //res.header("Access-Control-Allow-Credentials: http://localhost:3000");
+//   // res.header("Content-Type", "application/json;charset=UTF-8");
+//   // res.header("Access-Control-Allow-Credentials", true);
+//   // res.header(
+//   //   "Access-Control-Allow-Headers",
+//   //   "Origin, X-Requested-With, Content-Type, Accept"
+//   // );
+//   next();
+// });
+// app.use((req, res, next) => {
+//   res.header(
+//     "Access-Control-Allow-Origin:https://www.google.com/webhp?hl=en&sa=X&ved=0ahUKEwi2jqapkYzrAhXVA2MBHVV_CFQQPAgH"
+//   );
+//   next();
+// });
 // error handler
+// app.use(function (req, res, next) {
+//   res.header("Content-Type", "application/json;charset=UTF-8");
+//   res.header("Access-Control-Allow-Credentials", true);
+//   res.header(
+//     "Access-Control-Allow-Headers",
+//     "Origin, X-Requested-With, Content-Type, Accept"
+//   );
+//   next();
+// });
 app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
