@@ -64,9 +64,7 @@ router.post("/", upload, async (req, res, next) => {
   product.weight = "30g";
   product.category = req.body.tags;
   console.log(__dirname);
-  //product.image.data = fs.readFileSync("file.jpg");
   product.image.data = req.body.img;
-  //product.image.contentType = "picture";
   await product.save();
   res.send(product);
 });
@@ -81,27 +79,100 @@ router.get("/cart/:qty/:id", async function (req, res, next) {
   let id = req.params.id;
   console.log("Cart in id:" + id);
   let product = await Product.findById(id);
-  // if(product)
-  //add check for counter and stock
+  if (req.params.qty > product.stock) {
+    return res.status(400).send("qty>stock");
+  }
   let cart = [];
   if (req.cookies.cart) {
     cart = req.cookies.cart;
   }
-  cart.push({
-    id: product._id,
-    name: product.name,
-    company: product.company,
-    price: product.price,
-    qty: req.params.qty,
-  });
+  console.log(cart.length);
 
+  let check = 0;
+  for (let i = 0; i < cart.length; i++) {
+    if (cart[i].id == id) {
+      console.log("matched");
+      if (Number(cart[i].qty) + Number(req.params.qty) > product.stock) {
+        console.log("greater");
+        console.log(cart[i].qty);
+        console.log(req.params.qty);
+        console.log(product.stock);
+        return res.status(400).send("qty>stock");
+      }
+    }
+  }
+
+  for (let i = 0; i < cart.length; i++) {
+    if (cart[i].id == id) {
+      check = 1;
+      cart[i].qty = Number(cart[i].qty) + Number(req.params.qty);
+    }
+  }
+  if (check != 1) {
+    cart.push({
+      id: product._id,
+      name: product.name,
+      company: product.company,
+      price: product.price,
+      qty: req.params.qty,
+    });
+  }
   res.cookie("cart", cart, { httpOnly: false });
 
   return res.send("Cookie created");
 });
-// router.post("/new", validateUserRegMW, async (req, res) => {
-//   return res.send("NEW");
-// });
+
+router.delete("/cart/:id", async function (req, res, next) {
+  let id = req.params.id;
+  console.log("Cart in id:" + id);
+
+  if (!req.cookies.cart) res.status(400).send("Cart is empty.");
+  let cart = [];
+  cart = req.cookies.cart;
+
+  for (let i = 0; i < cart.length; i++) {
+    if (cart[i].id == id) {
+      console.log("found");
+      cart.splice(i, 1);
+      break;
+    }
+  }
+  //req.cookies.cart = cart;
+
+  res.cookie("cart", cart);
+
+  // let product = await Product.findById(id);
+  // // if(product)
+  // //add check for counter and stock
+  // let cart = [];
+  // if (req.cookies.cart) {
+  //   cart = req.cookies.cart;
+  // }
+  // cart.push({
+  //   id: product._id,
+  //   name: product.name,
+  //   company: product.company,
+  //   price: product.price,
+  //   qty: req.params.qty,
+  // });
+
+  // res.cookie("cart", cart, { httpOnly: false });
+
+  return res.send(cart);
+});
+router.post("/neworder", async (req, res) => {
+  console.log(req.body.fname);
+  console.log(req.body.lname);
+  console.log(req.body.area);
+  console.log(req.body.address1);
+  console.log(req.body.address2);
+  if (req.cookies.cart.length < 1) {
+    return res.status(400).send("cartisempty");
+  }
+  console.log(req.cookies.cart);
+
+  return res.send("order");
+});
 
 // var storage = multer.diskStorage({
 //   destination: function (req, file, cb) {
