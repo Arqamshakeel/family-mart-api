@@ -4,6 +4,7 @@ const http = require("http").createServer(app);
 const io = require("socket.io")(http);
 var router = express.Router();
 var { Product } = require("../mongooseModels/mongooseModel.product");
+var { Order } = require("../mongooseModels/model.orders");
 const { mongo } = require("mongoose");
 var bcrypt = require("bcryptjs");
 var config = require("config");
@@ -77,6 +78,11 @@ router.get("/cart", async function (req, res, next) {
   } else {
     return res.send(null);
   }
+});
+router.get("/orders", async function (req, res, next) {
+  let order = await Order.find();
+  if (order) return res.send(order);
+  else return res.send(0);
 });
 router.get("/cart/:qty/:id", async function (req, res, next) {
   let id = req.params.id;
@@ -175,13 +181,18 @@ router.post("/neworder", async (req, res) => {
   console.log(req.cookies.cart);
   let cart = [];
   cart = req.cookies.cart;
-  var order = {
+  var data = {
     fname: req.body.fname,
     lname: req.body.lname,
     address: req.body.address1,
     phone: req.body.address2,
+    area: req.body.area,
     cart,
   };
+  let order = new Order();
+  order.customerData = data;
+  order.cart = cart;
+  order.save();
   return res.send("order");
 });
 
@@ -189,6 +200,7 @@ io.on("connection", (socket) => {
   socket.on("message", (data) => {
     console.log(data);
     socket.broadcast.emit("client", data);
+    return;
   });
 });
 http.listen(4001, () => {
