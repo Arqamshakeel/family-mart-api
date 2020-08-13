@@ -1,4 +1,7 @@
 var express = require("express");
+const app = require("express")();
+const http = require("http").createServer(app);
+const io = require("socket.io")(http);
 var router = express.Router();
 var { Product } = require("../mongooseModels/mongooseModel.product");
 const { mongo } = require("mongoose");
@@ -170,8 +173,26 @@ router.post("/neworder", async (req, res) => {
     return res.status(400).send("cartisempty");
   }
   console.log(req.cookies.cart);
-
+  let cart = [];
+  cart = req.cookies.cart;
+  var order = {
+    fname: req.body.fname,
+    lname: req.body.lname,
+    address: req.body.address1,
+    phone: req.body.address2,
+    cart,
+  };
   return res.send("order");
+});
+
+io.on("connection", (socket) => {
+  socket.on("message", (data) => {
+    console.log(data);
+    socket.broadcast.emit("client", data);
+  });
+});
+http.listen(4001, () => {
+  console.log("Listening on port 4001");
 });
 
 // var storage = multer.diskStorage({

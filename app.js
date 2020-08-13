@@ -105,7 +105,7 @@ app.use(function (err, req, res, next) {
 });
 
 mongoose
-  .connect(config.get("db"), {
+  .connect(config.get("prod"), {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
