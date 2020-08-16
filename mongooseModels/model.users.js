@@ -2,7 +2,8 @@ var mongoose = require("mongoose");
 const Joi = require("@hapi/joi"); //for validating data in mongoose
 
 var userSchema = mongoose.Schema({
-  name: String,
+  fname: String,
+  lname: String,
   email: String,
   password: String,
   role: { type: String, default: "common" },
@@ -11,7 +12,8 @@ var User = mongoose.model("users", userSchema);
 
 function validateUser(data) {
   const schema = Joi.object({
-    name: Joi.string().min(3).required(),
+    fname: Joi.string().min(3).required(),
+    lname: Joi.string().min(3).required(),
     email: Joi.string().email().min(3).required(),
     password: Joi.string().min(5).required(),
   });

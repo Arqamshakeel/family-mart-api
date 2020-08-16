@@ -13,6 +13,7 @@ var bodyParser = require("body-parser");
 app.use(bodyParser.json({ limit: "900mb" }));
 var cors = require("cors");
 const corsOptions = {
+  //these are the headres allowed
   allowedHeaders: [
     "Origin",
     "X-Requested-With",
@@ -20,6 +21,7 @@ const corsOptions = {
     "Accept",
     "X-Access-Token",
     "Authorization",
+    "x-auth-token", //this header is sent by react if user is logged in
   ],
   credentials: true,
   methods: "GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE",

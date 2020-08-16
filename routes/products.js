@@ -131,6 +131,18 @@ router.get("/cart/:qty/:id", async function (req, res, next) {
   return res.send("Cookie created");
 });
 
+router.delete("/delete/:id", async function (req, res, next) {
+  let id = req.params.id;
+  let product = await Product.findById(id);
+  if (!product) res.status(400).send("Item does not exists.");
+
+  await Product.findByIdAndDelete(id);
+  product = await Product.find();
+  //console.log("Delete in id:" + id);
+  //await Product.save();
+  res.send(product);
+});
+
 router.delete("/cart/:id", async function (req, res, next) {
   let id = req.params.id;
   console.log("Cart in id:" + id);
@@ -246,4 +258,27 @@ http.listen(4001, () => {
 //     // Everything went fine.
 //   });
 // });
+router.get("/single/:id", async (req, res, next) => {
+  let id = req.params.id;
+  let product = await Product.findById(id);
+  return res.send(product);
+});
+router.put("/put/:id", async (req, res, next) => {
+  let id = req.params.id;
+  //let product = await Product.findById(id);
+
+  let product = await Product.findById(id);
+  if (!product) res.status(400).send("product does not exists.");
+  product.name = req.body.name;
+  product.stock = req.body.stock;
+  product.company = req.body.company;
+  product.price = req.body.price;
+  product.weight = "30g";
+  //product.category = req.body.tags;
+  product.image.data = req.body.img;
+  await product.save();
+  return res.send();
+
+  //return res.send("");
+});
 module.exports = router;
