@@ -25,6 +25,7 @@ const corsOptions = {
   ],
   credentials: true,
   methods: "GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE",
+  //origin: "http://ec2-18-224-94-239.us-east-2.compute.amazonaws.com",
   origin: "http://localhost:3000",
   preflightContinue: false,
 };
@@ -53,7 +54,10 @@ app.use(function (req, res, next) {
   next(createError(404));
 });
 app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "http://localhost:3000/");
+  res.header(
+    "Access-Control-Allow-Origin",
+    "http://ec2-18-224-94-239.us-east-2.compute.amazonaws.com"
+  );
   res.header(
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept"
@@ -105,9 +109,9 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.render("error");
 });
-
+//mongodb+srv://arqam:arqam@mern1-siiuo.mongodb.net/FamilyMart?retryWrites=true&w=majority
 mongoose
-  .connect(config.get("db"), {
+  .connect("mongodb://localhost/FamilyMart", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })

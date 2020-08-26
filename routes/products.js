@@ -127,7 +127,6 @@ router.get("/cart/:qty/:id", async function (req, res, next) {
     });
   }
   res.cookie("cart", cart, { httpOnly: false });
-
   return res.send("Cookie created");
 });
 
@@ -274,7 +273,7 @@ router.put("/put/:id", async (req, res, next) => {
   product.company = req.body.company;
   product.price = req.body.price;
   product.weight = "30g";
-  //product.category = req.body.tags;
+  product.category = req.body.tags;
   product.image.data = req.body.img;
   await product.save();
   return res.send();
