@@ -25,8 +25,8 @@ const corsOptions = {
   ],
   credentials: true,
   methods: "GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE",
-  //origin: "http://ec2-18-224-94-239.us-east-2.compute.amazonaws.com",
-  origin: "http://localhost:3000",
+  origin: "http://ec2-18-224-94-239.us-east-2.compute.amazonaws.com",
+  //origin: "http://localhost:3000",
   preflightContinue: false,
 };
 app.use(cors(corsOptions));
@@ -109,12 +109,16 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.render("error");
 });
+//mongodb://localhost/FamilyMart
 //mongodb+srv://arqam:arqam@mern1-siiuo.mongodb.net/FamilyMart?retryWrites=true&w=majority
 mongoose
-  .connect("mongodb://localhost/FamilyMart", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(
+    "mongodb+srv://arqam:arqam@mern1-siiuo.mongodb.net/FamilyMart?retryWrites=true&w=majority",
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    }
+  )
   .then(() => {
     console.log("Connected to mongoDB");
   })
