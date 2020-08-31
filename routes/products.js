@@ -262,6 +262,26 @@ router.get("/single/:id", async (req, res, next) => {
   let product = await Product.findById(id);
   return res.send(product);
 });
+router.get("/singlename/:name", async (req, res, next) => {
+  let name = req.params.name;
+  console.log(name);
+  //console.log("dsfhnlksajfdjsaklfasdl;kfj;ksadjf;lasdjf");
+  let product = await Product.find({ name: req.params.name });
+  //console.log(product[0].image.data);
+  //if (!product) return res.status(400).send("Product Not found");
+  return res.send({ product: product, img: product[0].image.data });
+  //console.log("shshjhjsahsiwhldehidfheifh");
+  // res.send();
+});
+router.get("/name", async (req, res, next) => {
+  //let id = req.params.id;
+  console.log("In name");
+  let product = await Product.find().select("name -_id");
+  //console.log("hellog");
+  //console.log(product);
+  return res.send(product);
+  // return res.send(_.pick(product, ["name"]));
+});
 router.put("/put/:id", async (req, res, next) => {
   let id = req.params.id;
   //let product = await Product.findById(id);

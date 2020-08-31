@@ -25,8 +25,8 @@ const corsOptions = {
   ],
   credentials: true,
   methods: "GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE",
-  origin: "http://ec2-18-224-94-239.us-east-2.compute.amazonaws.com",
-  //origin: "http://localhost:3000",
+  //origin: "http://ec2-18-224-94-239.us-east-2.compute.amazonaws.com",
+  origin: "http://localhost:3000",
   preflightContinue: false,
 };
 app.use(cors(corsOptions));
