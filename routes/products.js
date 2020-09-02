@@ -81,8 +81,14 @@ router.get("/cart", async function (req, res, next) {
 });
 router.get("/orders", async function (req, res, next) {
   let order = await Order.find();
+  //let date = new Date();
   if (order) return res.send(order);
   else return res.send(0);
+});
+router.delete("/orders/:id", async function (req, res, next) {
+  // console.log("in del orders" + req.params.id);
+  await Order.findByIdAndDelete(req.params.id);
+  res.send();
 });
 router.get("/cart/:qty/:id", async function (req, res, next) {
   let id = req.params.id;
@@ -136,10 +142,10 @@ router.delete("/delete/:id", async function (req, res, next) {
   if (!product) res.status(400).send("Item does not exists.");
 
   await Product.findByIdAndDelete(id);
-  product = await Product.find();
+  //product = await Product.find();
   //console.log("Delete in id:" + id);
   //await Product.save();
-  res.send(product);
+  res.send();
 });
 
 router.delete("/cart/:id", async function (req, res, next) {
@@ -203,6 +209,10 @@ router.post("/neworder", async (req, res) => {
   let order = new Order();
   order.customerData = data;
   order.cart = cart;
+  //let date = new Date(req.body.date);
+  //date.getTime();
+  order.date = req.body.date;
+  order.time = req.body.time;
   order.save();
   return res.send("order");
 });
@@ -269,7 +279,9 @@ router.get("/singlename/:name", async (req, res, next) => {
   let product = await Product.find({ name: req.params.name });
   //console.log(product[0].image.data);
   //if (!product) return res.status(400).send("Product Not found");
-  return res.send({ product: product, img: product[0].image.data });
+  let img = product[0] ? product[0].image.data : null;
+  //let img = product[0].image.data ? product[0].image.data : null;
+  return res.send({ product: product, img: img });
   //console.log("shshjhjsahsiwhldehidfheifh");
   // res.send();
 });

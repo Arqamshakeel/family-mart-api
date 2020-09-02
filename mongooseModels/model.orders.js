@@ -4,6 +4,8 @@ const Joi = require("@hapi/joi"); //for validating data in mongoose
 var orderSchema = mongoose.Schema({
   cart: [],
   customerData: {},
+  date: "",
+  time: "",
 });
 var Order = mongoose.model("orders", orderSchema);
 
