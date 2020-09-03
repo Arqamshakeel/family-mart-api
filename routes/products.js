@@ -17,7 +17,7 @@ var jwt = require("jsonwebtoken");
 var validateUserRegMW = require("../middlewares/authUserReg");
 router.get("/", async (req, res, next) => {
   let product = await Product.find();
-
+  if (product.length == 0) return res.status(400).send([]);
   //var buf2 = Buffer.from(product[0].image.data, "base64");
 
   //var buf = buf2;
@@ -206,6 +206,18 @@ router.post("/neworder", async (req, res) => {
     area: req.body.area,
     cart,
   };
+
+  cart.map(async (item, index) => {
+    let product = await Product.findById(item.id);
+    if (product) {
+      product.stock = Number(product.stock) - Number(item.qty);
+      if (product.stock < 0) {
+        product.stock = 0;
+      }
+      await product.save();
+    }
+  });
+
   let order = new Order();
   order.customerData = data;
   order.cart = cart;
@@ -213,7 +225,10 @@ router.post("/neworder", async (req, res) => {
   //date.getTime();
   order.date = req.body.date;
   order.time = req.body.time;
-  order.save();
+  await order.save();
+
+  cart = [];
+  res.cookie("cart", cart);
   return res.send("order");
 });
 
@@ -272,18 +287,53 @@ router.get("/single/:id", async (req, res, next) => {
   let product = await Product.findById(id);
   return res.send(product);
 });
+router.get("/tags/:tag", async (req, res, next) => {
+  console.log("In tags");
+
+  // let product = await Product.find({
+  //   category:
+
+  //   })
+
+  // let product = await Product.find(
+  //   {
+  //     category: { $in: req.params.tag },
+  //   },
+  //   function (err, teamData) {
+  //     console.log("teams name  " + teamData);
+  //   }
+  // );
+  let product = await Product.find({ category: req.params.tag });
+
+  // });
+  // console.log(product.length);
+  if (product.length == 0) return res.status(400).send();
+
+  return res.send(product);
+});
 router.get("/singlename/:name", async (req, res, next) => {
-  let name = req.params.name;
-  console.log(name);
-  //console.log("dsfhnlksajfdjsaklfasdl;kfj;ksadjf;lasdjf");
-  let product = await Product.find({ name: req.params.name });
-  //console.log(product[0].image.data);
-  //if (!product) return res.status(400).send("Product Not found");
-  let img = product[0] ? product[0].image.data : null;
-  //let img = product[0].image.data ? product[0].image.data : null;
-  return res.send({ product: product, img: img });
-  //console.log("shshjhjsahsiwhldehidfheifh");
-  // res.send();
+  // let name = req.params.name;
+  // console.log(name);
+  // //console.log("dsfhnlksajfdjsaklfasdl;kfj;ksadjf;lasdjf");
+  // let product = await Product.find({ name: req.params.name });
+  // //console.log(product[0].image.data);
+  // //if (!product) return res.status(400).send("Product Not found");
+  // let img = product[0] ? product[0].image.data : null;
+  // //let img = product[0].image.data ? product[0].image.data : null;
+  // return res.send({ product: product, img: img });
+  // //console.log("shshjhjsahsiwhldehidfheifh");
+  // // res.send();
+
+  //universal search
+  let product = await Product.find({
+    name: { $regex: req.params.name, $options: "i" },
+  });
+
+  if (product.length == 0) return res.status(400).send();
+  // product.map((item, index) => {
+  //   console.log(item.name);
+  // });
+  return res.send(product);
 });
 router.get("/name", async (req, res, next) => {
   //let id = req.params.id;
