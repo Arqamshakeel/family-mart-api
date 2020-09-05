@@ -11,6 +11,7 @@ var productSchema = mongoose.Schema({
   weight: String,
   description: String,
   onSale: Boolean,
+  expiry: Date,
   category: [String],
 });
 var Product = mongoose.model("products", productSchema);

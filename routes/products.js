@@ -15,9 +15,15 @@ var multer = require("multer");
 //var upload = multer({ dest: "../uploads" });
 var jwt = require("jsonwebtoken");
 var validateUserRegMW = require("../middlewares/authUserReg");
+const { profile } = require("console");
 router.get("/", async (req, res, next) => {
-  let product = await Product.find();
+  let page = Number(req.query.page ? req.query.page : 1);
+  let perPage = Number(req.query.perPage ? req.query.perPage : 10);
+  let skipRecords = perPage * (page - 1);
+  let product = await Product.find().skip(skipRecords).limit(perPage);
   if (product.length == 0) return res.status(400).send([]);
+  let total = await Product.countDocuments();
+  // console.log(total);
   //var buf2 = Buffer.from(product[0].image.data, "base64");
 
   //var buf = buf2;
@@ -36,7 +42,7 @@ router.get("/", async (req, res, next) => {
   // }
   //res.cookie("cookieNam", "cookieValue");
 
-  return res.send(product);
+  return res.send({ product: product, total: total });
 
   // fs.writeFile("hello.jpg", buf, function (error) {
   //   if (error) {
@@ -67,6 +73,7 @@ router.post("/", upload, async (req, res, next) => {
   product.price = req.body.price;
   product.weight = "30g";
   product.category = req.body.tags;
+  product.expiry = req.body.expiry;
   console.log(__dirname);
   product.image.data = req.body.img;
   await product.save();
@@ -288,27 +295,66 @@ router.get("/single/:id", async (req, res, next) => {
   return res.send(product);
 });
 router.get("/tags/:tag", async (req, res, next) => {
-  console.log("In tags");
-
-  // let product = await Product.find({
-  //   category:
-
-  //   })
-
-  // let product = await Product.find(
-  //   {
-  //     category: { $in: req.params.tag },
-  //   },
-  //   function (err, teamData) {
-  //     console.log("teams name  " + teamData);
-  //   }
-  // );
-  let product = await Product.find({ category: req.params.tag });
+  let page = Number(req.query.page ? req.query.page : 1);
+  let perPage = Number(req.query.perPage ? req.query.perPage : 10);
+  let skipRecords = perPage * (page - 1);
+  let product = await Product.find({ category: req.params.tag })
+    .skip(skipRecords)
+    .limit(perPage);
+  let total = await Product.find({ category: req.params.tag }).countDocuments();
 
   // });
   // console.log(product.length);
   if (product.length == 0) return res.status(400).send();
 
+  return res.send({ product: product, total: total });
+});
+router.get("/expired", async (req, res, next) => {
+  let page = Number(req.query.page ? req.query.page : 1);
+  let perPage = Number(req.query.perPage ? req.query.perPage : 10);
+  let skipRecords = perPage * (page - 1);
+  let recentDate = new Date();
+  let date = recentDate.getDate();
+  let month = recentDate.getMonth() + 1;
+  let year = recentDate.getFullYear();
+  console.log(date + "/" + month + "/" + year);
+  console.log(recentDate);
+
+  let product = await Product.find().select("expiry");
+  let expired = [];
+  product.map((item, index) => {
+    let productExpiry = new Date(item.expiry);
+    let pDate = productExpiry.getDate();
+    let pMonth = productExpiry.getMonth() + 1;
+    let pYear = productExpiry.getFullYear();
+    console.log(pDate);
+    console.log(pMonth);
+    console.log(pYear);
+
+    if (pYear === year) {
+      if (pMonth === month || pMonth - 1 === month || month > pMonth) {
+        expired.push(item._id);
+      }
+    }
+
+    if (year > pYear) {
+      expired.push(item._id);
+    }
+  });
+
+  expired.map((item, index) => {
+    console.log(item);
+  });
+
+  product = await Product.find().where("_id").in(expired).exec();
+
+  // let total = await Product.find({ category: req.params.tag }).countDocuments();
+
+  // });
+  // console.log(product.length);
+  if (product.length == 0) return res.status(400).send();
+
+  //return res.send({ product: product, total: total });
   return res.send(product);
 });
 router.get("/singlename/:name", async (req, res, next) => {
@@ -325,15 +371,55 @@ router.get("/singlename/:name", async (req, res, next) => {
   // // res.send();
 
   //universal search
+  let page = Number(req.query.page ? req.query.page : 1);
+  let perPage = Number(req.query.perPage ? req.query.perPage : 10);
+  let skipRecords = perPage * (page - 1);
   let product = await Product.find({
     name: { $regex: req.params.name, $options: "i" },
-  });
+  })
+    .skip(skipRecords)
+    .limit(perPage);
+
+  let total = await Product.find({
+    name: { $regex: req.params.name, $options: "i" },
+  }).countDocuments();
 
   if (product.length == 0) return res.status(400).send();
   // product.map((item, index) => {
   //   console.log(item.name);
   // });
-  return res.send(product);
+  return res.send({ product: product, total: total });
+});
+router.get("/outofstock", async (req, res, next) => {
+  // let name = req.params.name;
+  // console.log(name);
+  // //console.log("dsfhnlksajfdjsaklfasdl;kfj;ksadjf;lasdjf");
+  // let product = await Product.find({ name: req.params.name });
+  // //console.log(product[0].image.data);
+  // //if (!product) return res.status(400).send("Product Not found");
+  // let img = product[0] ? product[0].image.data : null;
+  // //let img = product[0].image.data ? product[0].image.data : null;
+  // return res.send({ product: product, img: img });
+  // //console.log("shshjhjsahsiwhldehidfheifh");
+  // // res.send();
+
+  //universal search
+  let page = Number(req.query.page ? req.query.page : 1);
+  let perPage = Number(req.query.perPage ? req.query.perPage : 10);
+  let skipRecords = perPage * (page - 1);
+  let product = await Product.find({
+    stock: 0,
+  })
+    .skip(skipRecords)
+    .limit(perPage);
+
+  let total = await Product.find({ stock: 0 }).countDocuments();
+
+  if (product.length == 0) return res.status(400).send();
+  // product.map((item, index) => {
+  //   console.log(item.name);
+  // });
+  return res.send({ product: product, total: total });
 });
 router.get("/name", async (req, res, next) => {
   //let id = req.params.id;
@@ -354,6 +440,7 @@ router.put("/put/:id", async (req, res, next) => {
   product.stock = req.body.stock;
   product.company = req.body.company;
   product.price = req.body.price;
+  product.expiry = req.body.expiry;
   product.weight = "30g";
   product.category = req.body.tags;
   product.image.data = req.body.img;
