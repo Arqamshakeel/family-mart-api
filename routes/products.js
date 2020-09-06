@@ -69,6 +69,7 @@ router.post("/", upload, async (req, res, next) => {
   let product = new Product();
   product.name = req.body.name;
   product.stock = req.body.stock;
+  if (product.stock < 0) product.stock = 0;
   product.company = req.body.company;
   product.price = req.body.price;
   product.weight = "30g";

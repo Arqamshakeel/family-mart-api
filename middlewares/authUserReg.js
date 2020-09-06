@@ -10,7 +10,7 @@ function validateUserRegMW(req, res, next) {
       test = test + user.error.details[i].message;
       test = test + " ";
     }
-    return res.status(400).send(test);
+    return res.status(401).send(test);
   }
   next();
 }

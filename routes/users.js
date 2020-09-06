@@ -15,17 +15,19 @@ router.get("/", async (req, res, next) => {
 });
 
 router.post("/register", validateUserRegMW, async (req, res) => {
-  let user = await User.findOne({ email: req.body.email });
-  if (user) return res.status(400).send("Sorry, user already exists.");
-  user = new User();
-  user.fname = req.body.fname;
-  user.lname = req.body.lname;
-  user.email = req.body.email;
-  user.password = req.body.password;
+  let newuser = await User.findOne({ email: req.body.email });
+  if (newuser != null)
+    return res.status(400).send("Sorry, user already exists.");
+  newuser = new User();
+  newuser.fname = req.body.fname;
+  newuser.lname = req.body.lname;
+  newuser.email = req.body.email;
+  newuser.password = req.body.password;
   let salt = await bcrypt.genSalt(10);
-  user.password = await bcrypt.hash(user.password, salt);
-  await user.save();
-  return res.send(_.pick(user, ["email", "name"]));
+  newuser.password = await bcrypt.hash(newuser.password, salt);
+  await newuser.save();
+  return res.send();
+  // return res.send(_.pick(user, ["email", "name"]));
 });
 
 router.post("/login", validateUserLoginMW, async (req, res) => {
